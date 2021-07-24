@@ -1,0 +1,123 @@
+
+--//locals\\--
+local commands = {}
+
+local admins = { 
+	" ";
+	" ";    
+	" "
+}    -- local admins = {""; ""} = admin list
+
+
+local Prefix = "/" --If you type /tp in chat and then your user and the targets user you teleport to them. if i change the prefix to "!" it'll be !tp
+
+local function findPlayer(name) --//This searches for the players names.\\--
+
+	--//Start\\--
+
+	for i, player in pairs(game.Players:GetPlayers()) do
+		if string.lower(player.Name) == name then
+			return player
+		end
+	end
+
+	return nil
+
+end
+
+local function isAdmin(player)
+	for _, v in pairs(admins) do
+		if v == player.Name then
+			return true
+		end
+	end
+	return false
+end
+commands.tp = function(sender, arguments)
+
+	print("Tp Function fired by"..sender.Name)
+
+	for _, playerName in pairs(arguments) do
+		print(playerName)
+	end
+
+	local playerToTeleportName = arguments[1]
+	local playerToTeleportToName = arguments[2]
+
+	if playerToTeleportName and playerToTeleportToName  then
+		local plrToTp = findPlayer(playerToTeleportName)
+		local plrToTpTo = findPlayer(playerToTeleportToName)
+
+		if plrToTp and plrToTpTo then
+			plrToTp.Character.HumanoidRootPart.CFrame = plrToTpTo.Character.HumanoidRootPart.CFrame
+			print("Moved")
+		end
+	end
+
+end
+
+
+
+
+--//Speed command\\--
+commands.speed = function(sender, arguments)
+	local playerToGiveSpeedTo = arguments[1]
+	local AmoutOfSpeedToGive = arguments[2]
+
+	if playerToGiveSpeedTo then
+		local plr = findPlayer(playerToGiveSpeedTo)
+
+		if plr  then
+			plr.Character.Humanoid.WalkSpeed = tonumber(AmoutOfSpeedToGive)
+		end
+	end
+end
+
+
+--//JumpPower command\\--
+commands.gravity = function(sender, arguments)
+	local playerToGiveJumpPowerdTo = arguments[1]
+	local AmoutOfGravityToGive = arguments[2]
+
+	if playerToGiveJumpPowerdTo then
+		local plr = findPlayer(playerToGiveJumpPowerdTo)
+
+		if plr  then
+			plr.Character.Humanoid.JumpHeight = tonumber(AmoutOfGravityToGive)
+		end
+	end
+end
+
+
+--//Teleport script\\--
+game.Players.PlayerAdded:Connect(function(player)
+	player.Chatted:Connect(function(message,recipient)
+		if isAdmin(player) then
+			message = string.lower(message)
+
+			local splitString = message:split(" ")
+
+			local slashCommand = splitString[1]
+
+			local cmd = slashCommand:split(Prefix)
+
+			local cmdName = cmd[2]
+
+			if commands[cmdName]  then
+
+				local arguments = {}
+
+				for i = 2, #splitString	, 1 do
+					table.insert(arguments,splitString[i])
+
+				end
+
+				commands[cmdName](player,arguments)
+
+
+			end
+
+			--"tp Stefxtjuh" ------------> ("/tp","Stef,"Xtjuh")
+		end
+	end)
+end)
